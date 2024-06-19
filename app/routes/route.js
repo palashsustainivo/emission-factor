@@ -18,6 +18,9 @@ import groupMaster from "../services/groupMaster/route.js"
 import regionMaster from "../services/regionMaster/route.js"
 import sectorMaster from "../services/sectorMaster/route.js"
 import categoryMaster from "../services/categoryMaster/route.js"
+import ghgProtocolCategoryMaster from "../services/ghgProtocolCategoryMaster/route.js"
+import assuranceMaster from "../services/assuranceMaster/route.js"
+import emissionFactor from "../services/emissionFactor/route.js"
 
 export default [
     activityLog,
@@ -32,5 +35,8 @@ export default [
     groupMaster,
     regionMaster,
     sectorMaster,
-    categoryMaster
+    categoryMaster,
+    ghgProtocolCategoryMaster,
+    assuranceMaster,
+    emissionFactor
 ];
