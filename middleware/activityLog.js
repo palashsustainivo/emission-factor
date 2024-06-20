@@ -19,6 +19,7 @@ async function createActivityLog(req,res,next) {
     let insertData = {
       table_name: tableName ? tableName : "",
       ref_id: refId,
+      parent_ref_id: refId,
       action_type: req.method ? req.method : process.env.GET_METHOD,
       created_by: req.userId,
       action_details: req.body ? req.body : "",

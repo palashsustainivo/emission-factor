@@ -3,7 +3,7 @@ const Joi = require('joi');
 const updateData = (req,res,next)=>{ 
     const JoiSchema = Joi.object({
         rating: Joi.string().required(),
-        record_date: Joi.date().required(),
+        record: Joi.string().required(),
         file: Joi.string().optional().allow(null,""),
         assured_by: Joi.string().optional().allow(null,""),
         created_by: Joi.string().optional().allow(null,""),

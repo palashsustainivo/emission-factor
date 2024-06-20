@@ -15,7 +15,7 @@ const ghgProtocolCategoryMaster = sequelize.define('ghg_protocol_category_master
     scope: {
         type: Sequelize.ENUM,
         values: ['Scope 1', 'Scope 2', 'Scope 3'],
-        allowNull: false // The scope of the ghg protocol category
+        allowNull: true // The scope of the ghg protocol category
     },
     created_by: {
         type: Sequelize.STRING,

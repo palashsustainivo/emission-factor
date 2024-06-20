@@ -29,11 +29,11 @@ const CrudService = (model) => {
     async filterSearch(serachParam,start=process.env.DEFAULT_STAERT,limit=process.env.DEFAULT_LIMIT) {
       try {
         model.belongsTo(sourceMaster,{foreignKey: 'source_id'});
-        model.belongsTo(uomMaster,{foreignKey: 'uom_id'});
+        //model.belongsTo(uomMaster,{foreignKey: 'uom_id'});
         model.belongsTo(licenseTypeMaster,{foreignKey: 'license_type_id'});
         model.belongsTo(licenseMaster,{foreignKey: 'license_id'});
         model.belongsTo(methodologyMaster,{foreignKey: 'methodology_id'});
-        model.belongsTo(calculationMethodologyMaster,{foreignKey: 'calculation_methodology_id'});
+        //model.belongsTo(calculationMethodologyMaster,{foreignKey: 'calculation_methodology_id'});
         model.belongsTo(calculationOriginMaster,{foreignKey: 'calculation_origin_id'});
         model.belongsTo(regionMaster,{foreignKey: 'region_id'});
         model.belongsTo(groupMaster,{foreignKey: 'group_id'});
@@ -43,7 +43,7 @@ const CrudService = (model) => {
         model.belongsTo(ghgProtocolCategoryMaster,{foreignKey: 'ghg_protocol_category_id'});
         model.belongsTo(assuranceMaster,{foreignKey: 'assurance_id'});
         const result = await model.findAll({
-          include: [sourceMaster,uomMaster,licenseTypeMaster,licenseMaster,methodologyMaster,calculationMethodologyMaster,calculationOriginMaster,regionMaster,groupMaster,sectorMaster,categoryMaster,verificationTypeMaster,ghgProtocolCategoryMaster,assuranceMaster],
+          include: [sourceMaster,licenseTypeMaster,licenseMaster,methodologyMaster,calculationOriginMaster,regionMaster,groupMaster,sectorMaster,categoryMaster,verificationTypeMaster,ghgProtocolCategoryMaster,assuranceMaster],
           where: serachParam,
           offset: start, // replace 'start' with the actual starting point
           limit: limit // replace 'limit' with the actual limit
@@ -60,11 +60,11 @@ const CrudService = (model) => {
     async filterSearchCount(serachParam) {
       try {
         model.belongsTo(sourceMaster,{foreignKey: 'source_id'});
-        model.belongsTo(uomMaster,{foreignKey: 'uom_id'});
+        //model.belongsTo(uomMaster,{foreignKey: 'uom_id'});
         model.belongsTo(licenseTypeMaster,{foreignKey: 'license_type_id'});
         model.belongsTo(licenseMaster,{foreignKey: 'license_id'});
         model.belongsTo(methodologyMaster,{foreignKey: 'methodology_id'});
-        model.belongsTo(calculationMethodologyMaster,{foreignKey: 'calculation_methodology_id'});
+        //model.belongsTo(calculationMethodologyMaster,{foreignKey: 'calculation_methodology_id'});
         model.belongsTo(calculationOriginMaster,{foreignKey: 'calculation_origin_id'});
         model.belongsTo(regionMaster,{foreignKey: 'region_id'});
         model.belongsTo(groupMaster,{foreignKey: 'group_id'});
@@ -74,7 +74,7 @@ const CrudService = (model) => {
         model.belongsTo(ghgProtocolCategoryMaster,{foreignKey: 'ghg_protocol_category_id'});
         model.belongsTo(assuranceMaster,{foreignKey: 'assurance_id'});
         const result = await model.count({
-          include: [sourceMaster,uomMaster,licenseTypeMaster,licenseMaster,methodologyMaster,calculationMethodologyMaster,calculationOriginMaster,regionMaster,groupMaster,sectorMaster,categoryMaster,verificationTypeMaster,ghgProtocolCategoryMaster,assuranceMaster],
+          include: [sourceMaster,licenseTypeMaster,licenseMaster,methodologyMaster,calculationOriginMaster,regionMaster,groupMaster,sectorMaster,categoryMaster,verificationTypeMaster,ghgProtocolCategoryMaster,assuranceMaster],
           where: serachParam
         });
         return result

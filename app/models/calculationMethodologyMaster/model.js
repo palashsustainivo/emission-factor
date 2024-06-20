@@ -28,6 +28,10 @@ const calculationMethodologyMaster = sequelize.define('calculation_methodology_m
         type: Sequelize.STRING,
         allowNull: false
     },
+    year: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
     created_by: {
         type: Sequelize.STRING,
         allowNull: true // Identifier for the user who created the record

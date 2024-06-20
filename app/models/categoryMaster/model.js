@@ -23,6 +23,10 @@ const categoryMaster = sequelize.define('category_master', {
             key: 'sector_id',
         }
     },
+    file_path:{
+        type: Sequelize.STRING,
+        allowNull: true // The path to the file
+    },
     created_by: {
         type: Sequelize.STRING,
         allowNull: true // Identifier for the user who created the record

@@ -23,6 +23,10 @@ const sectorMaster = sequelize.define('sector_master', {
             key: 'group_id',
         }
     },
+    file_path:{
+        type: Sequelize.STRING,
+        allowNull: true // The path to the file
+    },
     created_by: {
         type: Sequelize.STRING,
         allowNull: true // Identifier for the user who created the record

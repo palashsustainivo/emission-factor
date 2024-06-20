@@ -12,6 +12,10 @@ const groupMaster = sequelize.define('group_master', {
         type: Sequelize.STRING,
         allowNull: false // The name of the group
     },
+    file_path:{
+        type: Sequelize.STRING,
+        allowNull: true // The path to the file
+    },
     created_by: {
         type: Sequelize.STRING,
         allowNull: true // Identifier for the user who created the record

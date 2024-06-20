@@ -4,6 +4,7 @@ const createData = (req,res,next)=>{
     const JoiSchema = Joi.object({
         category_name: Joi.string().required(),
         sector_id: Joi.string().guid({ version: process.env.UUID_VERSION }).required(),
+        file_path: Joi.string().optional().allow(null,""),
         created_by: Joi.string().optional().allow(null,""),
         updated_by: Joi.string().optional().allow(null,""),
     }).options({ abortEarly: true }); 

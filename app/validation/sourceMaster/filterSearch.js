@@ -5,6 +5,7 @@ const filterSearch = (req,res,next)=>{
         source_name: Joi.string().optional().allow(null,""),
         source_description: Joi.optional().allow(null,""),
         source_link1: Joi.string().uri().optional().allow(null,""),
+        file_path: Joi.string().optional().allow(null,""),
         start: Joi.number().optional(),
         limit: Joi.number().optional(),
         page: Joi.number().optional(),

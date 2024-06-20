@@ -3,7 +3,7 @@ const Joi = require('joi');
 const filterSearch = (req,res,next)=>{ 
     const JoiSchema = Joi.object({
         rating: Joi.string().optional().allow('', null),
-        record_date: Joi.date().optional().allow('', null),
+        record: Joi.string().optional().allow('', null),
         file: Joi.string().optional().allow('', null),
         assured_by: Joi.string().optional().allow('', null),
         start: Joi.number().optional().allow('', null),

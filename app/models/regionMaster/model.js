@@ -12,6 +12,10 @@ const regionMaster = sequelize.define('region_master', {
         type: Sequelize.STRING,
         allowNull: false // The name of the region
     },
+    file_path:{
+        type: Sequelize.STRING,
+        allowNull: true // The path to the file
+    },
     created_by: {
         type: Sequelize.STRING,
         allowNull: true // Identifier for the user who created the record

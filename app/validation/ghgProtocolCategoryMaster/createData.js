@@ -3,7 +3,7 @@ const Joi = require('joi');
 const createData = (req,res,next)=>{ 
     const JoiSchema = Joi.object({
         ghg_protocol_category_name: Joi.string().required(),
-        scope: Joi.string().valid('Scope 1', 'Scope 2', 'Scope 3').required(),
+        scope: Joi.string().valid('Scope 1', 'Scope 2', 'Scope 3').optional().allow(null,""),
         created_by: Joi.string().optional().allow(null,""),
         updated_by: Joi.string().optional().allow(null,""),
     }).options({ abortEarly: true }); 

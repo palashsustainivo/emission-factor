@@ -16,7 +16,7 @@ const activityLog = sequelize.define('activity_log', {
         type: Sequelize.STRING,
         allowNull: false
     },
-    secondary_ref_id: {
+    parent_ref_id: {
         type: Sequelize.STRING,
         allowNull: true
     },

@@ -14,11 +14,15 @@ const sourceMaster = sequelize.define('source_master', {
     },
     source_description: {
         type: Sequelize.STRING,
-        allowNull: false // A detailed description of the source
+        allowNull: true // A detailed description of the source
     },
     source_link1: {
         type: Sequelize.STRING,
         allowNull: true // The link to the source
+    },
+    file_path:{
+        type: Sequelize.STRING,
+        allowNull: true // The path to the file
     },
     created_by: {
         type: Sequelize.STRING,

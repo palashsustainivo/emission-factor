@@ -12,8 +12,8 @@ const assuranceMaster = sequelize.define('assurance_master', {
         type: Sequelize.STRING,
         allowNull: false // The rating of the assurance
     },
-    record_date: {
-        type: Sequelize.DATEONLY,
+    record: {
+        type: Sequelize.STRING,
         allowNull: false
     },
     file: {

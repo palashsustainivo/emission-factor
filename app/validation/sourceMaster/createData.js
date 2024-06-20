@@ -5,6 +5,7 @@ const createData = (req,res,next)=>{
         source_name: Joi.string().required(),
         source_description: Joi.string().required().allow(null,""),
         source_link1: Joi.string().uri().optional().allow(null,""),
+        file_path: Joi.string().optional().allow(null,""),
         created_by: Joi.string().optional().allow(null,""),
         updated_by: Joi.string().optional().allow(null,""),
     }).options({ abortEarly: true }); 
@@ -19,5 +20,4 @@ const createData = (req,res,next)=>{
         next();
     }
 };
-
 module.exports = createData;

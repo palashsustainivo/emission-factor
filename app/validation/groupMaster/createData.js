@@ -3,6 +3,7 @@ const Joi = require('joi');
 const createData = (req,res,next)=>{ 
     const JoiSchema = Joi.object({
         group_name: Joi.string().required(),
+        file_path: Joi.string().optional().allow(null,""),
         created_by: Joi.string().optional().allow(null,""),
         updated_by: Joi.string().optional().allow(null,""),
     }).options({ abortEarly: true }); 

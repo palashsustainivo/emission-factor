@@ -5,6 +5,7 @@ const filterSearch = (req,res,next)=>{
         sector_name: Joi.string().optional().allow('', null),
         group_id: Joi.string().optional().allow('', null),
         group_name: Joi.string().optional().allow('', null),
+        file_path: Joi.string().optional().allow(null,""),
         start: Joi.number().optional(),
         limit: Joi.number().optional(),
         page: Joi.number().optional(),

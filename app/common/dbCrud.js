@@ -69,6 +69,26 @@ const CrudService = (model) => {
       }
     },
 
+    /**
+     * Find one reccord from the table for all except particular id.
+     * @returns {Promise<Array<Object>>} A Promise that resolves with an array of records.
+     */
+    async findOneReccordNotId(key,id,efIdentifier,isDelertedStatus) {
+      try {
+        const result = await model.findOne({
+          where: {
+          [key]: {
+              [Op.ne]: id 
+            },
+            is_deleted: parseInt(isDelertedStatus),
+            ef_identifier: efIdentifier,
+          },
+        });
+        return result
+      } catch (error) {
+        throw error;
+      }
+    },
 
     /**
      * Find one reccord from the table.

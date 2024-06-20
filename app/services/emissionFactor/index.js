@@ -181,20 +181,31 @@ const createData = async (req, res) => {
   }
   try {
     let bodyData = req.body;
-    // Sanitize each field in bodyData here...
-    for (let key in bodyData) {
-      if (bodyData.hasOwnProperty(key)) {
-        bodyData[key] = sanitizeHtml(bodyData[key]);
+    let isRecordExist = await dbCrud.findOneReccord({ef_identifier: bodyData.ef_identifier,is_deleted: process.env.IS_DELETED_NO});
+    if(isRecordExist == null) {
+      // Sanitize each field in bodyData here...
+      for (let key in bodyData) {
+        if (bodyData.hasOwnProperty(key)) {
+          bodyData[key] = sanitizeHtml(bodyData[key]);
+        }
       }
+      
+      bodyData.created_by = req.userId;
+      const result = await dbCrud.create(bodyData);
+      let sendResponse = {
+        data: result,
+        message: process.env.COMMON_INSERT_MESSAGE
+      };
+      res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+      log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+    } else {
+      let sendResponse = {
+        data: [],
+        message: process.env.RECCORD_EXIST_MASSAGE
+      };
+      res.status(process.env.VALIDATION_ERROR).send(sendResponse);
+      log.Info(log1,process.env.ERROR_RESPONSE_LOG);
     }
-    bodyData.created_by = req.userId;
-    const result = await dbCrud.create(bodyData);
-    let sendResponse = {
-      data: result,
-      message: process.env.COMMON_INSERT_MESSAGE
-    };
-    res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
-    log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
   } catch (error) {
     let sendResponse = {
       data: [],
@@ -238,223 +249,281 @@ const bulkUploadData = async (req, res) => {
     const createdByUserId = req.userId;
     let rowNo = 0;
     let skippedRow = 0;
+    let skippedRowData = [];
     if(dbStoreData) {
       let uploadMode = req.body.upload_mode;
       if(uploadMode == 1) {
         await dbCrud.truncateTable();
       }
+      let excelIndex = 0;
       for(let item of dbStoreData){
+        excelIndex++;
         //Check if source name is present in the master
         let sourceDetails = "";
-        if(item[5] != null) {
-          sourceDetails = sourceModelDbCrud.findOneReccord({source_name: item[5]});
+        if(item[3] != null) {
+          sourceDetails = sourceModelDbCrud.findOneReccord({source_name: item[3]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
-        }
-        let uomDetails = "";
-        if(item[8] != null) {
-          uomDetails = uomModelDbCrud.findOneReccord({uom_name: item[8]});
-        } else {
-          skippedRow++;
-          continue;
+          continue;*/
         }
         let lisenceTypeDetails = "";
-        if(item[9] != null) {
-          lisenceTypeDetails = licenseTypeModelDbCrud.findOneReccord({license_type_name: item[9]});
+        if(item[17] != null) {
+          lisenceTypeDetails = licenseTypeModelDbCrud.findOneReccord({license_type_name: item[17]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
+          continue;*/
         }
         let lisenceDetails = "";
-        if(item[10] != null) {
-          lisenceDetails = licenseModelDbCrud.findOneReccord({url: item[10]});
+        if(item[18] != null) {
+          lisenceDetails = licenseModelDbCrud.findOneReccord({url: item[18]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
+          continue;*/
         }
         let methodologyDetails = "";
-        if(item[11] != null) {
-          methodologyDetails = methodologyModelDbCrud.findOneReccord({methodology_name: item[11]});
+        if(item[13] != null) {
+          methodologyDetails = methodologyModelDbCrud.findOneReccord({methodology_name: item[13]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
-        }
-        let calculationMethodologyDetails = "";
-        if(item[12] != null && item[13] != null && item[14] != null && item[15] != null && item[16] != null) {
-          calculationMethodologyDetails = calculationModelDbCrud.findOneReccord({calculation_methodology_name: item[12],gwp_value: item[13],gwp_value_for_co2: item[14],gwp_value_for_ch4: item[15],gwp_value_for_n2o: item[16]});
-        } else {
-          skippedRow++;
-          continue;
+          continue;*/
         }
         let calculationOriginDetails = "";
-        if(item[17] != null) {
-          calculationOriginDetails = calculationOriginModelDbCrud.findOneReccord({calculation_origin_name: item[17]});
+        if(item[15] != null) {
+          calculationOriginDetails = calculationOriginModelDbCrud.findOneReccord({calculation_origin_name: item[15]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
+          continue;*/
         }
         let regionDetails = "";
-        if(item[18] != null) {
-          regionDetails = regionModelDbCrud.findOneReccord({region_name: item[18]});
+        if(item[28] != null) {
+          regionDetails = regionModelDbCrud.findOneReccord({region_name: item[28]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
+          continue;*/
         }
         let groupDetails = "";
-        if(item[19] != null) {
-          groupDetails = groupModelDbCrud.findOneReccord({group_name: item[19]});
+        if(item[31] != null) {
+          groupDetails = groupModelDbCrud.findOneReccord({group_name: item[31]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
+          continue;*/
         }
         let sectorDetails = "";
-        if(item[20] != null) {
-          sectorDetails = sectorModelDbCrud.findOneReccord({sector_name: item[20]});
+        if(item[30] != null) {
+          sectorDetails = sectorModelDbCrud.findOneReccord({sector_name: item[30]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
+          continue;*/
         }
         let categoryDetails = "";
-        if(item[21] != null) {
-          categoryDetails = categoryModelDbCrud.findOneReccord({category_name: item[21]});
+        if(item[29] != null) {
+          categoryDetails = categoryModelDbCrud.findOneReccord({category_name: item[29]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
+          continue;*/
         }
         let verificationTypeDetails = "";
-        if(item[22] != null) {
-          verificationTypeDetails = verificationTypeModelDbCrud.findOneReccord({verification_type_name: item[22]});
+        if(item[19] != null) {
+          verificationTypeDetails = verificationTypeModelDbCrud.findOneReccord({verification_type_name: item[19]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
+          continue;*/
         }
         let ghgProtocolCategoryDetails = "";
-        if(item[23] != null && item[24] != null) {
+        if(item[12] != null && item[32] != null) {
           ghgProtocolCategoryDetails = ghgProtocolCategoryModelDbCrud.findOneReccord({ghg_protocol_category_name: item[23],scope: item[24]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
+          continue;*/
         }
         let assuranceDetails = "";
-        if(item[25] != null && item[26] != null && item[27] != null && item[28] != null) {
-          assuranceDetails = assuranceModelDbCrud.findOneReccord({rating: item[25],record_date: item[26],file: item[27],assured_by: item[28]});
+        if(item[23] != null && item[24] != null && item[25] != null && item[26] != null) {
+          assuranceDetails = assuranceModelDbCrud.findOneReccord({rating: item[23],record: item[24],file: item[25],assured_by: item[26]});
         } else {
+          /*let skippedRowDetails = {
+            rowNo: excelIndex,
+            message: process.env.ALL_MASTER_COLUMN_DATA_NOT_FOUND
+          };
+          skippedRowData.push(skippedRowDetails);
           skippedRow++;
-          continue;
+          continue;*/
         }
-        const allData = await Promise.all([sourceDetails, uomDetails, lisenceTypeDetails, lisenceDetails, methodologyDetails, calculationMethodologyDetails, calculationOriginDetails, regionDetails, groupDetails, sectorDetails, categoryDetails, verificationTypeDetails, ghgProtocolCategoryDetails, assuranceDetails]);
+        const allData = await Promise.all([sourceDetails, lisenceTypeDetails, lisenceDetails, methodologyDetails, calculationOriginDetails, regionDetails, groupDetails, sectorDetails, categoryDetails, verificationTypeDetails, ghgProtocolCategoryDetails, assuranceDetails]);
         // Create All Master Data
           let source_id = '';
-          if(allData[0] != null) {
+          if(allData[0] != null && typeof allData[0] != "undefined" && allData[0] != "") {
             source_id = allData[0].source_id;
           } else {
-            let insertData = await sourceModelDbCrud.create({source_name: item[5],source_description:item[6],source_link1:item[7],created_by: createdByUserId});
-            source_id = insertData.source_id;
-          }
-          let uom_id = '';
-          if(allData[1] != null) {
-            uom_id = allData[1].uom_id;
-          } else {
-            let insertData = await uomModelDbCrud.create({uom_name: item[8],created_by: createdByUserId});
-            uom_id = insertData.uom_id;
+            if(item[3] != "" && item[3] != null) {
+              let insertData = await sourceModelDbCrud.create({source_name: item[3],source_description:item[4],source_link1:item[5],created_by: createdByUserId});
+              source_id = insertData.source_id;
+            }
           }
           let license_type_id = '';
-          if(allData[2] != null) {
-            license_type_id = allData[2].license_type_id;
+          if(allData[1] != null && typeof allData[1] != "undefined" && allData[1] != "") {
+            license_type_id = allData[1].license_type_id;
           } else {
-            let insertData = await licenseTypeModelDbCrud.create({license_type_name: item[9],created_by: createdByUserId});
-            license_type_id = insertData.license_type_id;
+            if(item[17] != "" && item[17] != null) {
+              let insertData = await licenseTypeModelDbCrud.create({license_type_name: item[17],created_by: createdByUserId});
+              license_type_id = insertData.license_type_id;
+            }
           }
           let license_id = '';
-          if(allData[3] != null) {
-            license_id = allData[3].license_id;
+          if(allData[2] != null && typeof allData[2] != "undefined" && allData[2] != "") {
+            license_id = allData[2].license_id;
           } else {
-            let insertData = await licenseModelDbCrud.create({url: item[10],license_type_id: license_type_id,created_by: createdByUserId});
-            license_id = insertData.license_id;
+            if(item[18] != "" && item[18] != null && license_type_id != "" && license_type_id != null) {
+              let insertData = await licenseModelDbCrud.create({url: item[18],license_type_id: license_type_id,created_by: createdByUserId});
+              license_id = insertData.license_id;
+            }
           }
           let methodology_id = '';
-          if(allData[4] != null) {
-            methodology_id = allData[4].methodology_id;
+          if(allData[3] != null && typeof allData[3] != "undefined" && allData[3] != "") {
+            methodology_id = allData[3].methodology_id;
           } else {
-            let insertData = await methodologyModelDbCrud.create({methodology_name: item[11],created_by: createdByUserId});
-            methodology_id = insertData.methodology_id;
-          }
-          let calculation_methodology_id = '';
-          if(allData[5] != null) {
-            calculation_methodology_id = allData[5].calculation_methodology_id;
-          } else {
-            let insertData = await calculationModelDbCrud.create({calculation_methodology_name: item[12],gwp_value: item[13],gwp_value_for_co2: item[14],gwp_value_for_ch4: item[15],gwp_value_for_n2o: item[16],created_by: createdByUserId});
-            calculation_methodology_id = insertData.calculation_methodology_id;
+            if(item[13] != "" && item[13] != null) {
+              let insertData = await methodologyModelDbCrud.create({methodology_name: item[13],created_by: createdByUserId});
+              methodology_id = insertData.methodology_id;
+            }
           }
           let calculation_origin_id = '';
-          if(allData[6] != null) {
-            calculation_origin_id = allData[6].calculation_origin_id;
+          if(allData[4] != null && typeof allData[4] != "undefined" && allData[4] != "") {
+            calculation_origin_id = allData[4].calculation_origin_id;
           } else {
-            let insertData = await calculationOriginModelDbCrud.create({calculation_origin_name: item[17],created_by: createdByUserId});
-            calculation_origin_id = insertData.calculation_origin_id;
+            if(item[15] != "" && item[15] != null) {
+              let insertData = await calculationOriginModelDbCrud.create({calculation_origin_name: item[15],created_by: createdByUserId});
+              calculation_origin_id = insertData.calculation_origin_id;
+            }
           }
           let region_id = '';
-          if(allData[7] != null) {
-            region_id = allData[7].region_id;
+          if(allData[5] != null && typeof allData[5] != "undefined" && allData[5] != "") {
+            region_id = allData[5].region_id;
           } else {
-            let insertData = await regionModelDbCrud.create({region_name: item[18],created_by: createdByUserId});
-            region_id = insertData.region_id;
+            if(item[28] != "" && item[28] != null) {
+              let insertData = await regionModelDbCrud.create({region_name: item[28],created_by: createdByUserId});
+              region_id = insertData.region_id;
+            }
           }
           let group_id = '';
-          if(allData[8] != null) {
-            group_id = allData[8].group_id;
+          if(allData[6] != null && typeof allData[6] != "undefined" && allData[6] != "") {
+            group_id = allData[6].group_id;
           } else {
-            let insertData = await groupModelDbCrud.create({group_name: item[19],created_by: createdByUserId});
-            group_id = insertData.group_id;
+            if(item[31] != "" && item[31] != null) {
+              let insertData = await groupModelDbCrud.create({group_name: item[31],created_by: createdByUserId});
+              group_id = insertData.group_id;
+            }
           }
           let sector_id = '';
-          if(allData[9] != null) {
-            sector_id = allData[9].sector_id;
+          if(allData[7] != null && typeof allData[7] != "undefined" && allData[7] != "") {
+            sector_id = allData[7].sector_id;
           } else {
-            let insertData = await sectorModelDbCrud.create({sector_name: item[20],group_id:group_id,created_by: createdByUserId});
-            sector_id = insertData.sector_id;
+            if(item[30] != "" && item[30] != null & group_id != "" && group_id != null) {
+              let insertData = await sectorModelDbCrud.create({sector_name: item[30],group_id:group_id,created_by: createdByUserId});
+              sector_id = insertData.sector_id;
+            }
           }
           let category_id = '';
-          if(allData[10] != null) {
-            category_id = allData[10].category_id;
+          if(allData[8] != null && typeof allData[8] != "undefined" && allData[8] != "") {
+            category_id = allData[8].category_id;
           } else {
-            let insertData = await categoryModelDbCrud.create({category_name: item[21],sector_id:sector_id,created_by: createdByUserId});
-            category_id = insertData.category_id;
+            if(item[29] != "" && item[29] != null & sector_id != "" && sector_id != null) {
+              let insertData = await categoryModelDbCrud.create({category_name: item[29],sector_id:sector_id,created_by: createdByUserId});
+              category_id = insertData.category_id;
+            }
           }
           let verification_type_id = '';
-          if(allData[11] != null) {
-            verification_type_id = allData[11].verification_type_id;
+          if(allData[9] != null && typeof allData[9] != "undefined" && allData[9] != "") {
+            verification_type_id = allData[9].verification_type_id;
           } else {
-            let insertData = await verificationTypeModelDbCrud.create({verification_type_name: item[22],created_by: createdByUserId});
-            verification_type_id = insertData.verification_type_id;
+            if(item[19] != "" && item[19] != null) {
+              let insertData = await verificationTypeModelDbCrud.create({verification_type_name: item[19],created_by: createdByUserId});
+              verification_type_id = insertData.verification_type_id;
+            }
           }
           let ghg_protocol_category_id = '';
-          if(allData[12] != null) {
-            ghg_protocol_category_id = allData[12].ghg_protocol_category_id;
+          if(allData[10] != null && typeof allData[10] != "undefined" && allData[10] != "") {
+            ghg_protocol_category_id = allData[10].ghg_protocol_category_id;
           } else {
-            let insertData = await ghgProtocolCategoryModelDbCrud.create({ghg_protocol_category_name: item[23],scope: item[24],created_by: createdByUserId});
-            ghg_protocol_category_id = insertData.ghg_protocol_category_id;
+            if(item[12] != "" && item[12] != null) {
+              let insertData = await ghgProtocolCategoryModelDbCrud.create({ghg_protocol_category_name: item[12],scope: item[32],created_by: createdByUserId});
+              ghg_protocol_category_id = insertData.ghg_protocol_category_id;
+            }
           }
           let assurance_id = '';
-          if(allData[13] != null) {
-            assurance_id = allData[13].assurance_id;
+          if(allData[11] != null && typeof allData[11] != "undefined" && allData[11] != "") {
+            assurance_id = allData[11].assurance_id;
           } else {
-            let insertData = await assuranceModelDbCrud.create({rating: item[25],record_date: item[26],file: item[27],assured_by: item[28],created_by: createdByUserId});
-            assurance_id = insertData.assurance_id;
+            if(item[23] != "" && item[23] != null && item[26] != "" && item[26] != null) {
+              let insertData = await assuranceModelDbCrud.create({rating: item[23],record: item[24],file: item[25],assured_by: item[26],created_by: createdByUserId});
+              assurance_id = insertData.assurance_id;
+            }
           }
         // Create All Master Data
         let rowData = {
           ef_name: item[0],
           ef_identifier: item[1],
-          co2e_total: item[2],
-          unit: item[3],
+          co2e_total: item[45],
+          unit: item[46],
+          hsn_code: item[2],
           source_id:source_id,
-          uom_id:uom_id,
           license_type_id:license_type_id,
           license_id:license_id,
           methodology_id:methodology_id,
-          calculation_methodology_id:calculation_methodology_id,
           calculation_origin_id:calculation_origin_id,
           region_id:region_id,
           group_id:group_id,
@@ -463,71 +532,136 @@ const bulkUploadData = async (req, res) => {
           verification_type_id:verification_type_id,
           ghg_protocol_category_id:ghg_protocol_category_id,
           assurance_id:assurance_id,
-          version:item[46],
-          year:item[49],
-          year_released:item[50],
+          co2: item[33],
+          co2_unit: item[34],
+          ch4: item[35],
+          ch4_unit: item[36],
+          n2o: item[39],
+          n2o_unit: item[40],
+          co2_other: item[43],
+          co2_other_unit: item[44],
+          co2eofch4: item[37],
+          co2ofch4_unit: item[38],
+          co2eofn2o: item[41],
+          co2eofn2o_unit: item[42],
+          scope: item[32],
+          quality_score: item[21],
+          quality_issue: item[22],
+          verified_by: item[20],
+          casual_activity: item[16],
+          version:item[11],
+          additional_info1:item[7],
+          additional_info2:item[8],
+          year:item[9],
+          year_released:item[10],
+          source_link2:item[6],
+          permission_level:item[27],
         };
+        //Insert Or Get Data For UOM For Co2
+        let unitOfCo2Total = await uomModelDbCrud.findOneReccord({uom_name: item[46]});
+        if(unitOfCo2Total != null) {
+          rowData.unit = unitOfCo2Total.uom_id;
+        } else {
+          if(item[46] != "" && item[46] != null) {
+            let insertData = await uomModelDbCrud.create({uom_name: item[46],created_by: createdByUserId});
+            rowData.unit = insertData.uom_id;
+          }
+        }
+        //Insert Or Get Data For UOM For Co2
+        let unitOfCo2 = await uomModelDbCrud.findOneReccord({uom_name: item[34]});
+        if(unitOfCo2 != null) {
+          rowData.co2_unit = unitOfCo2.uom_id;
+        } else {
+          if(item[34] != "" && item[34] != null) {
+            let insertData = await uomModelDbCrud.create({uom_name: item[34],created_by: createdByUserId});
+            rowData.co2_unit = insertData.uom_id;
+          }
+        }
+        //Insert Or Get Data For UOM For Ch4
+        let unitOfCh4 = await uomModelDbCrud.findOneReccord({uom_name: item[36]});
+        if(unitOfCh4 != null) {
+          rowData.ch4_unit = unitOfCh4.uom_id;
+        } else {
+          if(item[36] != "" && item[36] != null) {
+            let insertData = await uomModelDbCrud.create({uom_name: item[36],created_by: createdByUserId});
+            rowData.ch4_unit = insertData.uom_id;
+          }
+        }
+        //Insert Or Get Data For UOM For N2O
+        let unitOfN2o = await uomModelDbCrud.findOneReccord({uom_name: item[40]});
+        if(unitOfN2o != null) {
+          rowData.n2o_unit = unitOfN2o.uom_id;
+        } else {
+          if(item[40] != "" && item[40] != null) {
+            let insertData = await uomModelDbCrud.create({uom_name: item[40],created_by: createdByUserId});
+            rowData.n2o_unit = insertData.uom_id;
+          }
+        }
+        //Insert Or Get Data For UOM For co2Other
+        let co2OtherUnit = await uomModelDbCrud.findOneReccord({uom_name: item[44]});
+        if(co2OtherUnit != null) {
+          rowData.co2_other_unit = co2OtherUnit.uom_id;
+        } else {
+          if(item[44] != "" && item[44] != null) {
+            let insertData = await uomModelDbCrud.create({uom_name: item[44],created_by: createdByUserId});
+            rowData.co2_other_unit = insertData.uom_id;
+          }
+        }
+        //Insert Or Get Data For UOM For co2OfCh4
+        let co2OfCh4Unit = await uomModelDbCrud.findOneReccord({uom_name: item[38]});
+        if(co2OfCh4Unit != null) {
+          rowData.co2ofch4_unit = co2OfCh4Unit.uom_id;
+        } else {
+          if(item[38] != "" && item[38] != null) {
+            let insertData = await uomModelDbCrud.create({uom_name: item[38],created_by: createdByUserId});
+            rowData.co2ofch4_unit = insertData.uom_id;
+          }
+        }
+        //Insert Or Get Data For UOM For co2OfN2O
+        let co2OfN2oUnit = await uomModelDbCrud.findOneReccord({uom_name: item[42]});
+        if(co2OfN2oUnit != null) {
+          rowData.co2eofn2o_unit = co2OfN2oUnit.uom_id;
+        } else {
+          if(item[42] != "" && item[42] != null) {
+            let insertData = await uomModelDbCrud.create({uom_name: item[42],created_by: createdByUserId});
+            rowData.co2eofn2o_unit = insertData.uom_id;
+          }
+        }
         if(uploadMode == 3) {
-          let isRecordExist = await dbCrud.findOneReccord(rowData);
-          if(isRecordExist.emission_factor_id != null) {
+          let isRecordExist = await dbCrud.findOneReccord({ef_identifier: item[1],is_deleted: process.env.IS_DELETED_NO});
+          if(isRecordExist != null) {
             //Update data
-            rowData.hsn_code = item[4];
-            rowData.co2 = item[29];
-            rowData.co2_unit = item[30];
-            rowData.ch4 = item[31];
-            rowData.ch4_unit = item[32];
-            rowData.n2o = item[33];
-            rowData.n2o_unit = item[34];
-            rowData.co2_other_unit = item[35];
-            rowData.co2eofch4 = item[36];
-            rowData.co2ofch4_unit = item[37];
-            rowData.co2eofn2o = item[38];
-            rowData.co2eofn2o_unit = item[39];
-            rowData.gwp_value = item[40];
-            rowData.scope = item[41] != null ? item[41] : process.env.DEFAULT_SCOPE;
-            rowData.quality_score = item[42];
-            rowData.quality_issue = item[43];
-            rowData.verified_by = item[44];
-            rowData.casual_activity = item[45];
-            rowData.additional_info1 = item[47];
-            rowData.additional_info2 = item[48];
-            rowData.source_link2 = item[51];
-            rowData.permission_level = item[52];
             rowData.updated_by = createdByUserId;
             let updateData = await dbCrud.update(primaryKey,isRecordExist.emission_factor_id, rowData);
             rowNo++;
             continue;
           } else {
-            skippedRow++;
+            rowData.created_by = createdByUserId;
+            let insertReccord = await dbCrud.create(rowData);
+            rowNo++;
             continue;
           }
+        } else if(uploadMode == 2) {
+          let isRecordExist = await dbCrud.findOneReccord({ef_identifier: item[1],is_deleted: process.env.IS_DELETED_NO});
+          if(isRecordExist == null) {
+            //Insert data
+            rowData.created_by = createdByUserId;
+            let insertReccord = await dbCrud.create(rowData);
+            rowNo++;
+          } else {
+            let skippedRowDetails = {
+              rowNo: excelIndex,
+              message: process.env.RECCORD_EXIST_MASSAGE
+            };
+            skippedRowData.push(skippedRowDetails);
+            skippedRow++;
+          }
+        } else if(uploadMode == 1){
+          //Insert data
+          rowData.created_by = createdByUserId;
+          let insertReccord = await dbCrud.create(rowData);
+          rowNo++;
         }
-        //Insert data
-        rowData.hsn_code = item[4];
-        rowData.co2 = item[29];
-        rowData.co2_unit = item[30];
-        rowData.ch4 = item[31];
-        rowData.ch4_unit = item[32];
-        rowData.n2o = item[33];
-        rowData.n2o_unit = item[34];
-        rowData.co2_other_unit = item[35];
-        rowData.co2eofch4 = item[36];
-        rowData.co2ofch4_unit = item[37];
-        rowData.co2eofn2o = item[38];
-        rowData.co2eofn2o_unit = item[39];
-        rowData.gwp_value = item[40];
-        rowData.scope = item[41] != null ? item[41] : process.env.DEFAULT_SCOPE;
-        rowData.quality_score = item[42];
-        rowData.quality_issue = item[43];
-        rowData.verified_by = item[44];
-        rowData.casual_activity = item[45];
-        rowData.additional_info1 = item[47];
-        rowData.additional_info2 = item[48];
-        rowData.source_link2 = item[51];
-        rowData.permission_level = item[52];
-        rowData.created_by = createdByUserId;
-        let insertReccord = await dbCrud.create(rowData);
-        rowNo++;
       }
     } else {
       let sendResponse = {
@@ -544,7 +678,8 @@ const bulkUploadData = async (req, res) => {
       message: process.env.COMMEON_UPLOAD_MESSAGE,
       //insertedRowStatus: insertedRowStatus,
       modifiedRow: rowNo,
-      skippedRow: skippedRow
+      skippedRow: skippedRow,
+      skippedRowDetails:skippedRowData
     };
     res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
     log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
@@ -577,15 +712,25 @@ const updateData = async (req, res) => {
   try {
     const id = req.params.id;
     let bodyData = req.body;
-    bodyData.updated_by = req.userId;
-    const result = await dbCrud.update(primaryKey,id, bodyData);
-    let sendResponse = {
-      data: result,
-      message: process.env.COMMEON_UPDATE_MESSAGE
-    };
-    res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
-    //res.status(process.env.SUCCESS_STATUS_CODE).json({ message: process.env.COMMEON_UPDATE_MESSAGE });
-    log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+    let isRecordExist = await dbCrud.findOneReccordNotId(primaryKey,id,bodyData.ef_identifier,process.env.IS_DELETED_NO);
+    if(isRecordExist == null) {
+      bodyData.updated_by = req.userId;
+      const result = await dbCrud.update(primaryKey,id, bodyData);
+      let sendResponse = {
+        data: result,
+        message: process.env.COMMEON_UPDATE_MESSAGE
+      };
+      res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+      //res.status(process.env.SUCCESS_STATUS_CODE).json({ message: process.env.COMMEON_UPDATE_MESSAGE });
+      log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+    } else {
+      let sendResponse = {
+        data: [],
+        message: process.env.RECCORD_EXIST_MASSAGE
+      };
+      res.status(process.env.VALIDATION_ERROR).send(sendResponse);
+      log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+    }
   } catch (error) {
     let sendResponse = {
       data: [],

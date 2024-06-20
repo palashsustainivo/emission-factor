@@ -32,11 +32,11 @@ const emissionFactor = sequelize.define('emission_factor', {
     },
     co2e_total: {
         type: Sequelize.STRING,
-        allowNull: true // The total CO2e
+        allowNull: false // The total CO2e
     },
     unit: {
         type: Sequelize.STRING,
-        allowNull: true // unit of the emission factor
+        allowNull: false // unit of the emission factor
     },
     hsn_code: {
         type: Sequelize.STRING,
@@ -44,15 +44,15 @@ const emissionFactor = sequelize.define('emission_factor', {
     },
     source_id: {//Foreign key linked to the source master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: sourceMaster,
             // This is the column name of the referenced model
             key: 'source_id',
-        }
+        }*/
     },
-    uom_id: {//Foreign key linked to the uom master table.
+    /*uom_id: {//Foreign key linked to the uom master table.
         type: Sequelize.UUID,
         allowNull: false,
         references: {
@@ -61,38 +61,42 @@ const emissionFactor = sequelize.define('emission_factor', {
             // This is the column name of the referenced model
             key: 'uom_id',
         }
-    },
+    },*/
     license_type_id: {//Foreign key linked to the lisence type master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: licenseTypeMaster,
             // This is the column name of the referenced model
             key: 'license_type_id',
-        }
+        }*/
     },
     license_id: {//Foreign key linked to the lisence master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: licenseMaster,
             // This is the column name of the referenced model
             key: 'license_id',
-        }
+        }*/
     },
     methodology_id: {//Foreign key linked to the methodology master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: methodologyMaster,
             // This is the column name of the referenced model
             key: 'methodology_id',
-        }
+        }*/
     },
-    calculation_methodology_id: {//Foreign key linked to the calculation methodology master table.
+    /*gwp_year:{
+        type: Sequelize.STRING,
+        allowNull: true // The GWP year of the emission factor
+    },*/
+    /*calculation_methodology_id: {//Foreign key linked to the calculation methodology master table.
         type: Sequelize.UUID,
         allowNull: false,
         references: {
@@ -101,86 +105,86 @@ const emissionFactor = sequelize.define('emission_factor', {
             // This is the column name of the referenced model
             key: 'calculation_methodology_id',
         }
-    },
+    },*/
     calculation_origin_id: {//Foreign key linked to the calculation origin master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: calculationOriginMaster,
             // This is the column name of the referenced model
             key: 'calculation_origin_id',
-        }
+        }*/
     },
     region_id: {//Foreign key linked to the region master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: regionMaster,
             // This is the column name of the referenced model
             key: 'region_id',
-        }
+        }*/
     },
     group_id: {//Foreign key linked to the group master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: groupMaster,
             // This is the column name of the referenced model
             key: 'group_id',
-        }
+        }*/
     },
     sector_id: {//Foreign key linked to the sector master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: sectorMaster,
             // This is the column name of the referenced model
             key: 'sector_id',
-        }
+        }*/
     },
     category_id: {//Foreign key linked to the category master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: categoryMaster,
             // This is the column name of the referenced model
             key: 'category_id',
-        }
+        }*/
     },
     verification_type_id: {//Foreign key linked to the verification type master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: verificationTypeMaster,
             // This is the column name of the referenced model
             key: 'verification_type_id',
-        }
+        }*/
     },
     ghg_protocol_category_id: {//Foreign key linked to the ghg protocol category master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: ghgProtocolCategoryMaster,
             // This is the column name of the referenced model
             key: 'ghg_protocol_category_id',
-        }
+        }*/
     },
     assurance_id: {//Foreign key linked to the assurance master table.
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
+        allowNull: true,
+        /*references: {
             // This is a reference to another model
             model: assuranceMaster,
             // This is the column name of the referenced model
             key: 'assurance_id',
-        }
+        }*/
     },
     co2: {
         type: Sequelize.STRING,
@@ -206,6 +210,10 @@ const emissionFactor = sequelize.define('emission_factor', {
         type: Sequelize.STRING,
         allowNull: true // The unit of N2O
     },
+    co2_other: {
+        type: Sequelize.STRING,
+        allowNull: true // The CO2 other
+    },
     co2_other_unit: {
         type: Sequelize.STRING,
         allowNull: true // The unit of CO2 other
@@ -226,14 +234,10 @@ const emissionFactor = sequelize.define('emission_factor', {
         type: Sequelize.STRING,
         allowNull: true // The unit of CO2e of N2O
     },
-    gwp_value:{
-        type: Sequelize.STRING,
-        allowNull: false // The GWP value
-    },
     scope: {
         type: Sequelize.ENUM,
         values: ['Scope 1', 'Scope 2', 'Scope 3'],
-        allowNull: false // The scope of the emission factor
+        allowNull: true // The scope of the emission factor
     },
     quality_score:{
         type: Sequelize.STRING,
