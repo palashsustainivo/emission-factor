@@ -34,6 +34,8 @@ async function createActivityLog(req,res,next) {
       insertData.action_for = 'update';
     } else if(req.method == process.env.POST_METHOD && originalUrl[3] == "filter_serarch") {
       insertData.action_for = 'filterSerarch';
+    } else if(req.method == process.env.POST_METHOD && originalUrl[3] == "count" && originalUrl[4] == "various_attribute") {
+      insertData.action_for = 'countByAttribute';
     } else if(req.method == process.env.POST_METHOD && Object.keys(req.body).length != 0) {
       insertData.action_for = 'create';
     } else if(req.method == process.env.POST_METHOD && originalUrl[3] == "soft" && originalUrl[4] == "delete") {
