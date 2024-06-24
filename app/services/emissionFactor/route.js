@@ -19,4 +19,5 @@ module.exports = express.Router()
   .delete("/emission_factor/delete/multi", auth, validate.deleteMultipleData, createActivityLog, controller.multiDeleteData)
   .post("/emission_factor/soft/delete", auth, validate.softDeleteMultipleData, createActivityLog, controller.multiSoftDeleteData)
   .post("/emission_factor/bulkUpload", auth, upload.single("file"), validate.bulkUploadData, createActivityLog, controller.bulkUploadData)
+  .post("/emission_factor/count/various_attribute", auth, validate.countByAttribute, createActivityLog, controller.efCountByAttribute)
   .get("/emission_factor", auth, validate.listData, createActivityLog, controller.getAllData);

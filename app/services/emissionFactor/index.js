@@ -127,16 +127,42 @@ const filterSearch = async (req, res) => {
     }
 
     let serachParam = req.body;
+    let searchParam2 = {};
     // Sanitize each field in serachParam here...
     for (let key in serachParam) {
       if (serachParam.hasOwnProperty(key)) {
         //serachParam[key] = sanitizeHtml(serachParam[key]);
-        serachParam[key] = {
-          [Op.like]: "%" + serachParam[key] + "%"
-        };
+        if(key.toString() == "source_name") {
+          searchParam2['$source_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "license_type_name") {
+          searchParam2['$license_type_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "url") {
+          searchParam2['$license_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "methodology_name") {
+          searchParam2['$methodology_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "calculation_origin_name") {
+          searchParam2['$calculation_origin_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "region_name") {
+          searchParam2['$region_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "group_name") {
+          searchParam2['$group_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "sector_name") {
+          searchParam2['$sector_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "category_name") {
+          searchParam2['$category_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "verification_type_name") {
+          searchParam2['$verification_type_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "ghg_protocol_category_name") {
+          searchParam2['$ghg_protocol_category_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else if(key.toString() == "rating" || key.toString() == "assured_by") {
+          searchParam2['$assurance_master.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        } else {
+          searchParam2['$emission_factor.'+key+'$'] = { [Op.like]: '%'+serachParam[key]+'%' };
+        }
       }
     }
     serachParam.is_deleted = process.env.IS_DELETED_NO;
+    searchParam2.is_deleted = process.env.IS_DELETED_NO;
     serachParam = Object.keys(serachParam).filter(objKey =>
       (objKey !== process.env.START_KEY && objKey !== process.env.LIMIT_KEY && objKey !== process.env.PAGE_KEY)).reduce((newObj, key) =>
       {
@@ -144,9 +170,9 @@ const filterSearch = async (req, res) => {
         return newObj;
       }, {}
     );
-    const result = await modelDbCrud.filterSearch(serachParam,parseInt(start),parseInt(limit));
+    const result = await modelDbCrud.filterSearch(searchParam2,parseInt(start),parseInt(limit));
     //const sanitizedResult = sanitizeHtml(JSON.stringify(result));
-    const totalCount = await modelDbCrud.filterSearchCount(serachParam);//get total count while searching data
+    const totalCount = await modelDbCrud.filterSearchCount(searchParam2);//get total count while searching data
     let sendResponse = {
       data: result,
       totalCount: totalCount
@@ -868,6 +894,67 @@ const multiSoftDeleteData = async (req, res) => {
     log.Info(log1,process.env.ERROR_RESPONSE_LOG);
   }
 }
+
+/**
+ * Count of emission factor for various attribute record by ID Array
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ */
+const efCountByAttribute = async (req, res) => {
+  let log1 = {
+    method: req.method || process.env.DEFAULT_METHOD_NAME,
+    host: req.host || req.hostname || process.env.DEFAULT_HOST_NAME,
+    port: req.port || process.env.DEFAULT_PORT_NAME,
+    path: req.path || req.pathname || process.env.DEFAULT_PATH_NAME,
+    headers: req.headers || {},
+    params: req.params || {},
+    body: req.body || {},
+  }
+  try {
+    let start = sanitizeHtml(req.body.start) ? req.body.start : process.env.DEFAULT_STAERT;
+    let limit = sanitizeHtml(req.body.limit) ? req.body.limit : process.env.DEFAULT_LIMIT;
+    const page = sanitizeHtml(req.body.page) ? req.body.page : process.env.DEFAULT_PAGE;
+    if(page != "" && page != undefined && page != null) {
+      start = (page - 1) * limit;
+    }
+
+    let serachParam = req.body;
+    // Sanitize each field in serachParam here...
+    /*for (let key in serachParam) {
+      if (serachParam.hasOwnProperty(key)) {
+        //serachParam[key] = sanitizeHtml(serachParam[key]);
+        serachParam[key] = {
+          [Op.like]: "%" + serachParam[key] + "%"
+        };
+      }
+    }*/
+    serachParam.is_deleted = process.env.IS_DELETED_NO;
+    serachParam = Object.keys(serachParam).filter(objKey =>
+      (objKey !== process.env.START_KEY && objKey !== process.env.LIMIT_KEY && objKey !== process.env.PAGE_KEY)).reduce((newObj, key) =>
+      {
+        newObj[key] = serachParam[key];
+        return newObj;
+      }, {}
+    );
+    const result = await modelDbCrud.getReccordByAttribute(serachParam,parseInt(start),parseInt(limit));
+    //const sanitizedResult = sanitizeHtml(JSON.stringify(result));
+    const totalCount = await modelDbCrud.countReccordByAttribute(serachParam);//get total count while searching data
+    let sendResponse = {
+      data: result,
+      totalCount: totalCount
+    };
+    res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+    log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+  } catch (error) {
+    let sendResponse = {
+      data: [],
+      message: process.env.COMMEON_ERROR_MESSAGE
+    };
+    res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+    log1.error = error;
+    log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+  }
+}
 module.exports = {
   getAllData,
   getDataById,
@@ -878,4 +965,5 @@ module.exports = {
   deleteData,
   multiDeleteData,
   multiSoftDeleteData,
+  efCountByAttribute,
 };

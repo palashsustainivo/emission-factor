@@ -6,7 +6,6 @@ const deleteMultipleData = require('./deleteMultipleData');
 const bulkUploadData = require('./bulkUploadData');
 const filterSearch = require('./filterSearch');
 const softDeleteMultipleData = require('./softDeleteMultipleData');
-const countByAttribute = require('./countByAttribute');
 
 module.exports = {
     createData,
@@ -17,5 +16,4 @@ module.exports = {
     bulkUploadData,
     filterSearch,
     softDeleteMultipleData,
-    countByAttribute,
 }

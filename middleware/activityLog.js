@@ -30,12 +30,12 @@ async function createActivityLog(req,res,next) {
       insertData.action_for = 'list';
     } else if(req.method == process.env.GET_METHOD && refId != "") {
       insertData.action_for = 'getById';
-    } else if(req.method == process.env.POST_METHOD && Object.keys(req.body).length != 0) {
-      insertData.action_for = 'create';
     } else if(req.method == process.env.PUT_METHOD && typeof originalUrl[3] != "undefined" && Object.keys(req.body).length != 0) {
       insertData.action_for = 'update';
     } else if(req.method == process.env.POST_METHOD && originalUrl[3] == "filter_serarch") {
       insertData.action_for = 'filterSerarch';
+    } else if(req.method == process.env.POST_METHOD && Object.keys(req.body).length != 0) {
+      insertData.action_for = 'create';
     } else if(req.method == process.env.POST_METHOD && originalUrl[3] == "soft" && originalUrl[4] == "delete") {
       insertData.action_for = 'softDelete';
     } else if(req.method == process.env.POST_METHOD && originalUrl[3] == "bulkUpload") {
