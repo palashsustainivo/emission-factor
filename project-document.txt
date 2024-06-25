@@ -1,0 +1,1081 @@
+To create a Node.js project, follow these steps as per our requirements. This project must handle all snyk errors.
+
+1. **Create a Project Folder**
+
+   Create a folder for your project.
+
+2. **Create `package.json`**
+
+   Within that folder, create a file named `package.json` where all the project dependencies and configurations will be stored.
+
+3. **Create `.env` File**
+
+   Create a file `.env` to store all the environment variables for our project. All the sensitive information like database credentials, API keys, status code, messages, etc., will be stored in this file.
+
+    ```
+        VALIDATION_ERROR=403
+        UNAUTHORIZED_ERROR=401
+        SUCCESS_STATUS_CODE=200
+        ERROR_STATUS_CODE=500
+        ERROR_BAD_REQUEST_CODE=400
+        IS_DELETED_YES=1
+        IS_DELETED_NO=0
+        DEFAULT_START=0
+        DEFAULT_LIMIT=10
+        DEFAULT_PAGE=1
+        PER_PAGE_ELEMENT=10
+        MAX_DATA_LIMIT=10000000
+    ```
+
+4. **Create `server.js`**
+
+   Create a file `server.js` which will act as the main file for our project. We use the `http-errors`, `express`, `helmet`, `csurf`, `express-rate-limit`, `path`, `cookie-parser`, `body-parser`, `morgan`, and `cors` packages.
+
+    ```
+        app.use(logger("dev"));
+        app.use(express.json());
+        app.use(express.urlencoded({ extended: false }));
+        app.use(cookieParser());
+        app.use(express.static(path.join(__dirname, "public")));
+
+        app.use("/v1", indexRouter);
+    ```
+
+   `indexRouter` is called to the `index.js` file in the `routes` folder in the app.
+
+5. **Install Necessary Dependencies**
+
+   Install the necessary dependencies using the `npm install` command.
+
+6. **Create a Basic Server**
+
+   Create a basic server using the Express framework. Add routes and logic to handle different requests. We use Sequelize to connect to a database and perform CRUD operations.
+
+7. **Create Folder Structure**
+
+   Create a folder `app` within the root folder.
+
+8. **Create Common Folder**
+
+   Create a `common` folder within the `app` folder to store common functions and utilities. Within the `common` folder, create a file `dbCrud.js`. We will write all common functions to perform CRUD operations on the database in this file. Whatever model will be called to this function, it will do operations for that table.
+
+   Create another file named `readExcel.js` to read data from an Excel file.
+   sample dbCrud.js file code is
+    ```
+        import { Op } from 'sequelize';
+        import sequelize from '../../config/database.js';
+        import { parse } from 'dotenv';
+        /**
+        * Perform CRUD operations on a specified model.
+        * @param {Model} model - The Sequelize model to perform operations on.
+        */
+        const CrudService = (model) => {
+            return {
+
+                /**
+                * Insert multiple records into the specified model.
+                * @param {Array<Object>} data - The array of data to insert.
+                * @returns {Promise<Array<Object>>} A Promise that resolves with the inserted records.
+                */
+                    async bulkCreate(data) {
+                    try {
+                        const result = await model.bulkCreate(data);
+                        return result;
+                    } catch (error) {
+                        throw error;
+                    }
+                    },
+
+                /**
+                * Insert a new record into the specified model.
+                * @param {Object} data - The data to insert.
+                * @returns {Promise<Object>} A Promise that resolves with the inserted record.
+                */
+                async create(data) {
+                    try {
+                        const result = await model.create(data);
+                        return result;
+                    } catch (error) {
+                        throw error;
+                    }
+                },
+                /**
+                * Insert a new record into the specified model.
+                * @param {Object} data - The data to insert.
+                * @returns {Promise<Object>} A Promise that resolves with the inserted record.
+                */
+                async create(data) {
+                    try {
+                        const result = await model.create(data);
+                        return result;
+                    } catch (error) {
+                        throw error;
+                    }
+                },
+                /**
+                * Get all records from the specified model.
+                * @returns {Promise<Array<Object>>} A Promise that resolves with an array of records.
+                */
+                async getAll(serachParam,start=process.env.DEFAULT_STAERT,limit=process.env.DEFAULT_LIMIT) {
+                try {
+                    const result = await model.findAll({
+                    where: serachParam,
+                    offset: start, // replace 'start' with the actual starting point
+                    limit: limit // replace 'limit' with the actual limit
+                    });
+                    return result;
+                    } catch (error) {
+                        throw error;
+                    }
+                },
+
+                /**
+                * Get all records from the specified model.
+                * @returns {Promise<Array<Object>>} A Promise that resolves with an array of records.
+                */
+                async getAllCount(serachParam) {
+                try {
+                    const result = await model.count({
+                    where: serachParam,
+                    });
+                    return result;
+                } catch (error) {
+                    throw error;
+                }
+                },
+
+                /**
+                * Find one reccord from the table for all except particular id.
+                * @returns {Promise<Array<Object>>} A Promise that resolves with an array of records.
+                */
+                async findOneReccordNotId(key,id,efIdentifier,isDelertedStatus) {
+                try {
+                    const result = await model.findOne({
+                    where: {
+                    [key]: {
+                        [Op.ne]: id 
+                        },
+                        is_deleted: parseInt(isDelertedStatus),
+                        ef_identifier: efIdentifier,
+                    },
+                    });
+                    return result
+                } catch (error) {
+                    throw error;
+                }
+                },
+
+                /**
+                * Find one reccord from the table.
+                * @returns {Promise<Array<Object>>} A Promise that resolves with an array of records.
+                */
+                async findOneReccord(serachParam) {
+                try {
+                    const result = await model.findOne({
+                    where: serachParam
+                    });
+                    return result
+                } catch (error) {
+                    throw error;
+                }
+                },
+
+                /**
+                * Get all records from the specified model with out dependent table and filter.
+                * @returns {Promise<Array<Object>>} A Promise that resolves with an array of records.
+                */
+                async commonFilterSearch(serachParam,start=process.env.DEFAULT_STAERT,limit=process.env.DEFAULT_LIMIT) {
+                try {
+                    const result = await model.findAll({
+                    where: serachParam,
+                    offset: start, // replace 'start' with the actual starting point
+                    limit: limit // replace 'limit' with the actual limit
+                    });
+                    return result
+                } catch (error) {
+                    throw error;
+                }
+                },
+
+                /**
+                * Get count of all records from the specified model with out dependent table and filter.
+                * @returns {Promise<Array<Object>>} A Promise that resolves with an array of records.
+                */
+                async commonFilterSearchCount(serachParam) {
+                try {
+                    const result = await model.count({
+                    where: serachParam,
+                    });
+                    return result
+                } catch (error) {
+                    throw error;
+                }
+                },
+
+                /**
+                * Get a record by ID from the specified model.
+                * @param {number} id - The ID of the record to retrieve.
+                * @returns {Promise<Object|null>} A Promise that resolves with the record if found, or null if not found.
+                */
+                async getById(searchParam) {
+                try {
+                    //const result = await model.findByPk(id);
+                    const result = await model.findOne({
+                    where: searchParam
+                    });
+                    return result != null ? result : [];
+                } catch (error) {
+                    throw error;
+                }
+                },
+
+                /**
+                * Update a record in the specified model.
+                * @param {number} id - The ID of the record to update.
+                * @param {Object} data - The updated data for the record.
+                * @returns {Promise<number>} A Promise that resolves with the number of updated rows.
+                */
+                async update(key,id, data) {
+                try {
+                    const result = await model.update(data, {
+                    where: {
+                        [key]: {
+                        [Op.eq]: id,
+                        },
+                        is_deleted: parseInt(process.env.IS_DELETED_NO),
+                    },
+                    });
+                    return result[0];
+                } catch (error) {
+                    throw error;
+                }
+                },
+
+                /**
+                * Delete a record from the specified model.
+                * @param {number} id - The ID of the record to delete.
+                * @returns {Promise<number>} A Promise that resolves with the number of deleted rows.
+                */
+                async delete(key,id) {
+                try {
+                    const result = await model.destroy({
+                    where: {
+                        [key]: {
+                        [Op.eq]: id,
+                        },
+                    },
+                    });
+                    return result;
+                } catch (error) {
+                    if(error.name == process.env.FOREIGN_KEY_CONSTRAINT_ERROR){
+                    return process.env.FOREIGN_KEY_CONSTRAINT_ERROR;
+                    }
+                    throw error;
+                }
+                },
+
+                /**
+                * Truncate the table for the specified model.
+                * @returns {Promise<number>} A Promise that resolves with the number of deleted rows.
+                */
+                async truncateTable() {
+                try {
+                    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+                    const result = await model.destroy({
+                    where: {},
+                    truncate: true,
+                    });
+                    return result;
+                } catch (error) {
+                    throw error;
+                }
+                },
+
+                /**
+                * Delete multiple record from the specified model.
+                * @param {number} id - The ID of the record to delete.
+                * @returns {Promise<number>} A Promise that resolves with the number of deleted rows.
+                */
+                async multiDelete(key,id) {
+                try {
+                    const result = await model.destroy({
+                    where: {
+                        [key]: {
+                        [Op.in]: id,
+                        },
+                    },
+                    });
+                    return result;
+                } catch (error) {
+                    if(error.name == process.env.FOREIGN_KEY_CONSTRAINT_ERROR){
+                    return process.env.FOREIGN_KEY_CONSTRAINT_ERROR;
+                    }
+                    throw error;
+                }
+                },
+                /**
+                * Soft Delete multiple record from the specified model.
+                * @param {number} id - The ID of the record to delete.
+                * @returns {Promise<number>} A Promise that resolves with the number of deleted rows.
+                */
+                async multiSoftDelete(key,id,data) {
+                try {
+                    const result = await model.update(data, {
+                    where: {
+                        [key]: {
+                        [Op.in]: id,
+                        },
+                    },
+                    });
+                    return result;
+                } catch (error) {
+                    throw error;
+                }
+                },
+
+            };
+        };
+        export default CrudService;
+    ```
+
+    sample readExcel.js is
+    ```
+        const readXlsxFile = require('read-excel-file/node')
+
+        /**
+        * All Common Operation For Excel File
+        * 
+        */
+        const readExcel = async (path,userId="") => {
+        try {
+            let data = [];
+            return  data = readXlsxFile(path).then((rows) => {
+            const allColumns = rows[0];
+            // skip header
+            rows.shift();
+            let excelData = [];
+            rows.forEach((row) => {
+                let eachRow = {};
+                let index = 0;
+                for(let eachColumn of allColumns) {
+                eachRow[eachColumn] = row[index];
+                index++;
+                }
+                eachRow.created_by = userId;
+                excelData.push(eachRow);
+            });
+            return excelData;
+            })
+            .catch((err) => {
+            return false;
+            });
+        } catch (error) {
+            return false;
+        }
+        };
+
+         export default readExcel;
+    ```
+
+9. **Create Models Folder**
+
+   Create a folder `models` within the `app` folder to store all the database models. Each model will have its own file (`index.js` and `model.js`) with the necessary schema and methods to perform CRUD operations.
+
+   with in the models folder create a folder for each model. Each folder will contain two files, `index.js` and `model.js`. `index.js` will act as the main file for all the models, and `model.js` will contain the necessary schema and methods to perform CRUD operations.
+
+   sample code for `index.js` file  in the specific model folder is
+
+   ```
+    import model from './model';
+    import CrudService from '../../common/dbCrud';
+
+    const dbCrud = CrudService(model);
+    export default dbCrud;
+
+   ```
+
+
+
+10. **Create Routes Folder**
+
+    Create a folder named `routes` within the `app` folder to store all the routes for our project. `index.js` will act as the main file for all the routes, and `routes.js` will call the necessary functions from the models folder to handle the requests.
+
+11. **Create Services Folder**
+
+    Create a folder named `services` within the `app` folder to store all the business logic for our project. For each model, each folder contains a file named `index.js` which will act as the main file for all the services, and `service.js` which will contain the necessary functions to handle the business logic. `route.js` will call the necessary functions from the services folder to handle the requests.
+
+12. **Create Validation Folder**
+
+    Create a folder named `validation` within the `app` folder to store all the validation functions for our project. We use the Joi library to perform validation on the request body for each route.
+
+    For each model create a folder for that model name with in the validation folder. Each folder will contain one file for `index.js` which will export all the validation functions for that model. Each validation function will be stored in a separate file.
+    one validation file for each route describe in the services/model_name/route.js file.
+
+    sample `index.js` file code
+    ```
+        const createData = require('./createData');
+        const listData = require('./listData');
+        const updateData = require('./updateData');
+        const deleteSingleData = require('./deleteSingleData');
+        const deleteMultipleData = require('./deleteMultipleData');
+        const bulkUploadData = require('./bulkUploadData');
+        const filterSearch = require('./filterSearch');
+        const softDeleteMultipleData = require('./softDeleteMultipleData');
+
+        module.exports = {
+            createData,
+            listData,
+            updateData,
+            deleteSingleData,
+            deleteMultipleData,
+            bulkUploadData,
+            filterSearch,
+            softDeleteMultipleData
+        }
+    ```
+
+13. **Create Config Folder**
+
+    Create a folder named `config` within the `app` folder to store all the configuration files for our project. Create a file `database.js` to store the database configuration and credentials.
+
+    sample code for database.js file is 
+
+    ```
+        // Used to connect to the database
+        const Sequelize = require("sequelize");
+        const env = require("dotenv");
+        env.config();
+
+
+        const DB_HOST = process.env.DB_HOST;
+        //const DB_PORT = process.env.DB_PORT;
+        const DB_DATABASE = process.env.DB_DATABASE;
+        const DB_USERNAME = process.env.DB_USERNAME;
+        const DB_PASSWORD = process.env.DB_PASSWORD;
+        //const DB_SERVER = process.env.DB_SERVER;
+        //const DB_DRIVER = process.env.DB_DRIVER;
+        const sequelize = new Sequelize(DB_DATABASE, DB_USERNAME, DB_PASSWORD, {
+        dialect: "mysql",
+        timezone: process.env.DB_TIMEZONE, 
+        host: DB_HOST,
+        logging: false, // Disable logging
+        });
+
+        export default sequelize;
+
+    ```
+
+
+14. **Use Node-Logger Library**
+
+    Use the Node-Logger library to log all the necessary information and errors in a log file. It is important to handle errors and exceptions properly in our project. Logs are saved while the controller is executing the operation. The log file name will be generated based on the current date and time, e.g., `Logs_2021-08-10.log`. For each day one file will be created with the specific format. and each request will be stored in the log file with the specific format.
+
+
+15. **Create Middleware Folder**
+
+    Create a folder called `middleware` where all the middleware functions will be stored, such as authentication, authorization, etc. Create a file called `activityLog.js` to log all the activities performed by the user in our project. It is called before or after the controller executes the operation and saves the information in the `activity_log` table, which is described in the `activityLog` model.
+
+    Create a file named `auth.js` to authenticate valid users. It executes before the controller executes the operation.
+
+    Create a file called `upload.js` where the Multer library is used to handle file uploads and store them in an `uploads` folder.
+
+
+
+16. **Create Test Folder**
+
+    Create a folder called `test` in the root folder to store all the test files for our project. create separte file for each model with the name model_name.test.js. Each file will contain the necessary test cases for that model.
+    sample code for test file is
+
+    ```
+        const axios = require('axios');
+        import * as env from "./allSetup.js";
+        const FormData = require('form-data');
+        const fs = require('fs');
+        const baseUrl = process.env.BASE_URL + '/v1/calculation_origin_master';
+        const token = process.env.USER_TOKEN;
+
+        describe('Calculation Origin Master API', () => {
+        it('List API Data', async () => {
+            const response = await axios.get(baseUrl + '?page=1&limit=1', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+            });
+            expect(response.status).toBe(parseInt(process.env.SUCCESS_STATUS_CODE));
+        },process.env.TEST_EXECUTION_TIME);
+
+        it('Create Reccord', async () => {
+            let bodyData = {
+            calculation_origin_name:"Test 4"
+            };
+            const response = await axios.post(baseUrl , bodyData, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            });
+            expect(response.status).toBe(parseInt(process.env.SUCCESS_STATUS_CODE));
+        },process.env.TEST_EXECUTION_TIME);
+
+        it('Filter Search Reccord', async () => {
+            let bodyData = {
+            calculation_origin_name:"Test 4"
+            };
+            const response = await axios.post(baseUrl + '/filter_serarch', bodyData, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            });
+            expect(response.status).toBe(parseInt(process.env.SUCCESS_STATUS_CODE));
+        },process.env.TEST_EXECUTION_TIME);
+
+        it('Get Single Reccord', async () => {
+            const response = await axios.get(baseUrl + '/2d6b4225-2444-4f9f-9951-8fab2644d072', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            });
+            expect(response.status).toBe(parseInt(process.env.SUCCESS_STATUS_CODE));
+        },process.env.TEST_EXECUTION_TIME);
+
+        it('Update Single Reccord', async () => {
+            let bodyData = {
+            calculation_origin_name:"Test 4444"
+            };
+            const response = await axios.put(baseUrl + '/2d6b4225-2444-4f9f-9951-8fab2644d072', bodyData, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            });
+            expect(response.status).toBe(parseInt(process.env.SUCCESS_STATUS_CODE));
+        },process.env.TEST_EXECUTION_TIME);
+
+        it('Delete Single Reccord', async () => {
+            const response = await axios.get(baseUrl + '/f5459483-5042-47b9-94f5-4074424ac990', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            });
+            expect(response.status).toBe(parseInt(process.env.SUCCESS_STATUS_CODE));
+        },process.env.TEST_EXECUTION_TIME);
+
+        it('Delete Multiple Reccord', async () => {
+            const idsToDelete = ["10a42c10-9c81-4bf8-8436-47d7f255b6d7", "1708440c-c4d1-4136-981a-20f3283aa53e"];
+            const response = await axios.delete(`${baseUrl}/delete/multi`, {
+            data: { id: idsToDelete },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+            });
+            expect(response.status).toBe(parseInt(process.env.SUCCESS_STATUS_CODE));
+        },process.env.TEST_EXECUTION_TIME);
+
+        it('Soft Delete Multiple Reccord', async () => {
+            let bodyData = {
+            id:["2d6b4225-2444-4f9f-9951-8fab2644d072"]
+            };
+            const response = await axios.post(baseUrl + '/soft/delete', bodyData, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            });
+            expect(response.status).toBe(parseInt(process.env.SUCCESS_STATUS_CODE));
+        },process.env.TEST_EXECUTION_TIME);
+
+        it('Bulk Upload', async () => {
+            const form = new FormData();
+            const filePath = './SampleBulkUploadFile/sample_calculation_origin_master.xlsx'; // Replace with your file path
+            form.append('file', fs.createReadStream(filePath));
+            const response = await axios.post(baseUrl + '/bulkUpload', form, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+
+            },
+            });
+            expect(response.status).toBe(parseInt(process.env.SUCCESS_STATUS_CODE));
+        },process.env.TEST_EXECUTION_TIME);
+        
+        });
+    ```
+
+
+
+
+17. **Create Util Folder**
+
+    Create a folder called `util` in the root. Create a file called `Logger.js` within this folder, where the logic will be stored for what to save in the log file and how to save it.
+
+    sample code for Logger.js file is
+    ```
+        const options = {
+        folderPath: './logs/',
+        dateBasedFileNaming: true,
+        fileNamePrefix: 'DailyLogs_',
+        fileNameExtension: '.log',    
+        dateFormat: 'YYYY_MM_D',
+        timeFormat: 'h:mm:ss A',
+        }
+        log.SetUserOptions(options); 
+    ```
+
+
+18. **Define Route Structure**
+
+    For each route `services/modelName/route.js`, we will call the necessary functions from the services folder to handle the requests. First, call the `auth` middleware to authenticate the user. Then, validate the request body using the validation functions from the validation folder. If the request is valid, call the necessary functions from the services folder to handle the business logic. If the request is invalid, send an error response with the appropriate status code and error message. If there is an error during the execution of the request, handle it properly and send an error response with the appropriate status code and error message. After executing the controller function, it will call the `activityLog` middleware to log the activity performed by the user. Finally, send a response with the appropriate status code and the response format specified as status code, data, message, totalCount.
+
+19. **Controller Function**
+
+    In the controller function, we will call the necessary functions from the models folder to perform CRUD operations on the database. We always use the try and catch block to handle any errors or exceptions that may occur during the execution of the controller function. If any joining operation is required, we will create a `dbCrud.js` file within that folder for the particular model and call the necessary functions from the `dbCrud.js` file to perform the join operation.
+
+    filtersearch function act like `like search` function where we can search by any field of that table and `page` and `limit` are also optional.
+    sample controller code is
+    ```
+        
+        import dbCrud from '../../models/assuranceMaster/index';
+        import readExcel from '../../common/readExcel';
+        import { Op } from 'sequelize';
+        const log = require('node-file-logger');
+        import sanitizeHtml from 'sanitize-html';
+        const primaryKey = "assurance_id";
+
+        /**
+         * Get all Assurance Master records
+         * @param {Request} req - Express request object
+         * @param {Response} res - Express response object
+         */
+        const getAllData = async (req, res) => {
+        let log1 = {
+            method: req.method || process.env.DEFAULT_METHOD_NAME,
+            host: req.host || req.hostname || process.env.DEFAULT_HOST_NAME,
+            port: req.port || process.env.DEFAULT_PORT_NAME,
+            path: req.path || req.pathname || process.env.DEFAULT_PATH_NAME,
+            headers: req.headers || {},
+            params: req.params || {},
+            body: req.body || {},
+        }
+        try {
+            let start = sanitizeHtml(req.query.start) ? req.query.start : process.env.DEFAULT_STAERT;
+            let limit = sanitizeHtml(req.query.limit) ? req.query.limit : process.env.DEFAULT_LIMIT;
+            const page = sanitizeHtml(req.query.page) ? req.query.page : process.env.DEFAULT_PAGE;
+            if(page != "" && page != undefined && page != null) {
+            start = (page - 1) * limit;
+            }
+            let serachParam = {
+            is_deleted: process.env.IS_DELETED_NO,
+            };
+            const result = await dbCrud.getAll(serachParam,parseInt(start),parseInt(limit));
+            const totalCount = await dbCrud.getAllCount(serachParam);//get total count while listing all data
+            let sendResponse = {
+            data: result,
+            totalCount: totalCount
+            };
+            res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+            log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+        } catch (error) {
+            let sendResponse = {
+            data: [],
+            message: process.env.COMMEON_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+            log1.error = error;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+        }
+        };
+
+        /**
+         * Get a single Assurance Master record by ID
+         * @param {Request} req - Express request object
+         * @param {Response} res - Express response object
+         */
+        const getDataById = async (req, res) => {
+        let log1 = {
+            method: req.method || process.env.DEFAULT_METHOD_NAME,
+            host: req.host || req.hostname || process.env.DEFAULT_HOST_NAME,
+            port: req.port || process.env.DEFAULT_PORT_NAME,
+            path: req.path || req.pathname || process.env.DEFAULT_PATH_NAME,
+            headers: req.headers || {},
+            params: req.params || {},
+            body: req.body || {},
+        }
+        try {
+            const id = sanitizeHtml(req.params.id);
+            let searchParam = {
+            [primaryKey]: id,
+            is_deleted: process.env.IS_DELETED_NO
+            };
+            const result = await dbCrud.getById(searchParam);
+            let sendResponse = {
+            data: result,
+            };
+            res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+            log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+        } catch (error) {
+            let sendResponse = {
+            data: [],
+            message: process.env.COMMEON_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+            log1.error = error;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+        }
+        }
+
+        /**
+         * Get all data by searching parameter records
+         * @param {Request} req - Express request object
+         * @param {Response} res - Express response object
+         */
+        const filterSearch = async (req, res) => {
+        let log1 = {
+            method: req.method || process.env.DEFAULT_METHOD_NAME,
+            host: req.host || req.hostname || process.env.DEFAULT_HOST_NAME,
+            port: req.port || process.env.DEFAULT_PORT_NAME,
+            path: req.path || req.pathname || process.env.DEFAULT_PATH_NAME,
+            headers: req.headers || {},
+            params: req.params || {},
+            body: req.body || {},
+        }
+        try {
+            let start = sanitizeHtml(req.body.start) ? req.body.start : process.env.DEFAULT_STAERT;
+            let limit = sanitizeHtml(req.body.limit) ? req.body.limit : process.env.DEFAULT_LIMIT;
+            const page = sanitizeHtml(req.body.page) ? req.body.page : process.env.DEFAULT_PAGE;
+            if(page != "" && page != undefined && page != null) {
+            start = (page - 1) * limit;
+            }
+
+            let serachParam = req.body;
+            // Sanitize each field in serachParam here...
+            for (let key in serachParam) {
+            if (serachParam.hasOwnProperty(key)) {
+                //serachParam[key] = sanitizeHtml(serachParam[key]);
+                serachParam[key] = {
+                [Op.like]: "%" + serachParam[key] + "%"
+                };
+            }
+            }
+            serachParam.is_deleted = process.env.IS_DELETED_NO;
+            serachParam = Object.keys(serachParam).filter(objKey =>
+            (objKey !== process.env.START_KEY && objKey !== process.env.LIMIT_KEY && objKey !== process.env.PAGE_KEY)).reduce((newObj, key) =>
+            {
+                newObj[key] = serachParam[key];
+                return newObj;
+            }, {}
+            );
+            const result = await dbCrud.commonFilterSearch(serachParam,parseInt(start),parseInt(limit));
+            const totalCount = await dbCrud.commonFilterSearchCount(serachParam);//get total count while searching data
+            let sendResponse = {
+            data: result,
+            totalCount: totalCount
+            };
+            res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+            log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+        } catch (error) {
+            let sendResponse = {
+            data: [],
+            message: process.env.COMMEON_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+            log1.error = error;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+        }
+        };
+
+        /**
+         * Create a new Assurance Master record
+         * @param {Request} req - Express request object
+         * @param {Response} res - Express response object
+         */
+        const createData = async (req, res) => {
+        let log1 = {
+            method: req.method || process.env.DEFAULT_METHOD_NAME,
+            host: req.host || req.hostname || process.env.DEFAULT_HOST_NAME,
+            port: req.port || process.env.DEFAULT_PORT_NAME,
+            path: req.path || req.pathname || process.env.DEFAULT_PATH_NAME,
+            headers: req.headers || {},
+            params: req.params || {},
+            body: req.body || {},
+        }
+        try {
+            let bodyData = req.body;
+            // Sanitize each field in bodyData here...
+            for (let key in bodyData) {
+            if (bodyData.hasOwnProperty(key)) {
+                bodyData[key] = sanitizeHtml(bodyData[key]);
+            }
+            }
+            bodyData.created_by = req.userId;
+            const result = await dbCrud.create(bodyData);
+            let sendResponse = {
+            data: result,
+            message: process.env.COMMON_INSERT_MESSAGE
+            };
+            res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+            log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+        } catch (error) {
+            let sendResponse = {
+            data: [],
+            message: process.env.COMMEON_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+            log1.error = error;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+        }
+        }
+
+
+        /**
+         * Create multiple Assurance Master records while bulk uploading
+         * @param {Request} req - Express request object
+         * @param {Response} res - Express response object
+         */
+        const bulkUploadData = async (req, res) => {
+        let log1 = {
+            method: req.method || process.env.DEFAULT_METHOD_NAME,
+            host: req.host || req.hostname || process.env.DEFAULT_HOST_NAME,
+            port: req.port || process.env.DEFAULT_PORT_NAME,
+            path: req.path || req.pathname || process.env.DEFAULT_PATH_NAME,
+            headers: req.headers || {},
+            params: req.params || {},
+            body: req.body || {},
+        }
+        try {
+            if (typeof req.file == "undefined") {
+            log1.error = process.env.ERROR_UPLOAD_EXCEL_FILE_MESSAGE;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+            let sendResponse = {
+                data: [],
+                message: process.env.ERROR_UPLOAD_EXCEL_FILE_MESSAGE
+            };
+            return res.status(process.env.ERROR_BAD_REQUEST_CODE).send(sendResponse);
+            }
+            let path = __basedir + process.env.UPLOAD_FOLDER + req.file.filename;
+            let dbStoreData = await readExcel(path,req.userId);
+            let uploadMode = req.body.upload_mode ? sanitizeHtml(req.body.upload_mode) : 0;
+            if(dbStoreData) {
+            if(uploadMode == 1) {
+                await dbCrud.truncateTable();
+            }
+            dbCrud.bulkCreate(dbStoreData);
+            } else {
+            let sendResponse = {
+                data: [],
+                message: process.env.ERROR_READING_EXCEL_FILE_MESSAGE
+            };
+            res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+            log1.error = process.env.ERROR_READING_EXCEL_FILE_MESSAGE;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+            }
+            let sendResponse = {
+            data: [],
+            message: process.env.COMMEON_UPLOAD_MESSAGE,
+            modifiedRow: dbStoreData.length,
+            skippedRow: 0
+            };
+            res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+            log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+        } catch (error) {
+            let sendResponse = {
+            data: [],
+            message: process.env.COMMEON_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+            log1.error = error;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+        }
+        }
+
+        /**
+         * Update a Assurance Master record by ID
+         * @param {Request} req - Express request object
+         * @param {Response} res - Express response object
+         */
+        const updateData = async (req, res) => {
+        let log1 = {
+            method: req.method || process.env.DEFAULT_METHOD_NAME,
+            host: req.host || req.hostname || process.env.DEFAULT_HOST_NAME,
+            port: req.port || process.env.DEFAULT_PORT_NAME,
+            path: req.path || req.pathname || process.env.DEFAULT_PATH_NAME,
+            headers: req.headers || {},
+            params: req.params || {},
+            body: req.body || {},
+        }
+        try {
+            const id = req.params.id;
+            let bodyData = req.body;
+            bodyData.updated_by = req.userId;
+            const result = await dbCrud.update(primaryKey,id, bodyData);
+            let sendResponse = {
+            data: result,
+            message: process.env.COMMEON_UPDATE_MESSAGE
+            };
+            res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+            log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+        } catch (error) {
+            let sendResponse = {
+            data: [],
+            message: process.env.COMMEON_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+            log1.error = error;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+        }
+        }
+
+
+        /**
+         * Delete a Assurance Master record by ID
+         * @param {Request} req - Express request object
+         * @param {Response} res - Express response object
+         */
+        const deleteData = async (req, res) => {
+        let log1 = {
+            method: req.method || process.env.DEFAULT_METHOD_NAME,
+            host: req.host || req.hostname || process.env.DEFAULT_HOST_NAME,
+            port: req.port || process.env.DEFAULT_PORT_NAME,
+            path: req.path || req.pathname || process.env.DEFAULT_PATH_NAME,
+            headers: req.headers || {},
+            params: req.params || {},
+            body: req.body || {},
+        }
+        try {
+            const id = req.params.id;
+            const result = await dbCrud.delete(primaryKey,id);
+            if(result == process.env.FOREIGN_KEY_CONSTRAINT_ERROR) {
+            let sendResponse = {
+                data: [],
+                message: process.env.FOREIGN_KEY_CONSTRAINT_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_BAD_REQUEST_CODE).send(sendResponse);
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+            } else {
+            let sendResponse = {
+                data: result,
+                message: process.env.COMMEON_DELETE_MESSAGE
+            };
+            res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+            log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+            }
+        } catch (error) {
+            let sendResponse = {
+            data: [],
+            message: process.env.COMMEON_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+            log1.error = error;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+        }
+        }
+        /**
+         * Delete multiple Assurance Master record by ID Array
+         * @param {Request} req - Express request object
+         * @param {Response} res - Express response object
+         */
+        const multiDeleteData = async (req, res) => {
+        let log1 = {
+            method: req.method || process.env.DEFAULT_METHOD_NAME,
+            host: req.host || req.hostname || process.env.DEFAULT_HOST_NAME,
+            port: req.port || process.env.DEFAULT_PORT_NAME,
+            path: req.path || req.pathname || process.env.DEFAULT_PATH_NAME,
+            headers: req.headers || {},
+            params: req.params || {},
+            body: req.body || {},
+        }
+        try {
+            const id = req.body.id;
+            const result = await dbCrud.multiDelete(primaryKey,id);
+            if(result == process.env.FOREIGN_KEY_CONSTRAINT_ERROR) {
+            let sendResponse = {
+                data: [],
+                message: process.env.FOREIGN_KEY_CONSTRAINT_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_BAD_REQUEST_CODE).send(sendResponse);
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+            } else {
+            let sendResponse = {
+                data: result,
+                message: process.env.COMMEON_DELETE_MESSAGE
+            };
+            res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+            log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+            }
+        } catch (error) {
+            let sendResponse = {
+            data: [],
+            message: process.env.COMMEON_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+            log1.error = error;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+        }
+        }
+
+        /**
+         * Soft Delete multiple Assurance Master record by ID Array
+         * @param {Request} req - Express request object
+         * @param {Response} res - Express response object
+         */
+        const multiSoftDeleteData = async (req, res) => {
+        let log1 = {
+            method: req.method || process.env.DEFAULT_METHOD_NAME,
+            host: req.host || req.hostname || process.env.DEFAULT_HOST_NAME,
+            port: req.port || process.env.DEFAULT_PORT_NAME,
+            path: req.path || req.pathname || process.env.DEFAULT_PATH_NAME,
+            headers: req.headers || {},
+            params: req.params || {},
+            body: req.body || {},
+        }
+        try {
+            const id = req.body.id;
+            let updateData = {
+            is_deleted: process.env.IS_DELETED_YES,
+            updated_by: req.userId,
+            };
+            const result = await dbCrud.multiSoftDelete(primaryKey, id, updateData);
+            let sendResponse = {
+            data: result,
+            message: process.env.COMMEON_DELETE_MESSAGE
+            };
+            res.status(process.env.SUCCESS_STATUS_CODE).send(sendResponse);
+            log.Info(log1,process.env.SUCCESS_RESPONSE_LOG);
+        } catch (error) {
+            let sendResponse = {
+            data: [],
+            message: process.env.COMMEON_ERROR_MESSAGE
+            };
+            res.status(process.env.ERROR_STATUS_CODE).send(sendResponse);
+            log1.error = error;
+            log.Info(log1,process.env.ERROR_RESPONSE_LOG);
+        }
+        }
+
+        module.exports = {
+        getAllData,
+        getDataById,
+        filterSearch,
+        createData,
+        bulkUploadData,
+        updateData,
+        deleteData,
+        multiDeleteData,
+        multiSoftDeleteData
+        };
+    ```
+20. **API Endpoints**
+    - ** api first parameter should be model name e.g:- emision_factor**
+    - **GET Request:** For list API, the `page` and `limit` parameters are optional. `page` is the current page number, and `limit` is the number of records to be displayed per page.
+    e.g:-get("/model_name", auth, validate.listData, createActivityLog, controller.getAllData);
+    - **POST Request:** To create a new record.
+    e.g:-.post("/model_name", auth, validate.createData, createActivityLog, controller.createData)
+    - **POST Request:** For filter and search, all fields are optional,we can search by any field of that table and `page` and `limit` are also optional.
+    e.g:-.post("/model_name/filter_serarch", auth, validate.filterSearch, createActivityLog, controller.filterSearch)
+    - **PUT Request:** To update a record.
+    .put("/model_name/:id", auth, validate.updateData, createActivityLog, controller.updateData)
+    - **DELETE Request:** To delete a single record.
+    e.g:-.delete("/model_name/:id", auth, createActivityLog, controller.deleteData)
+    - **DELETE Request:** For bulk delete where we can delete multiple records at once. We will send `id` as the key and an array of `ids` as the value in the request body.
+    e.g:-.delete("/model_name/delete/multi", auth, validate.deleteMultipleData, createActivityLog, controller.multiDeleteData)
+    - **Soft Delete:** Implemented where we will update the status of the record to "is_deleted" instead of actually deleting it from the database(by default is_deleted is 0), it is also post request and id as key and array of ids as value in the request body. if deleted the is_deleted column will be 1
+    e.g:-post("/model_name/soft/delete", auth, validate.softDeleteMultipleData, createActivityLog, controller.multiSoftDeleteData)
+    - **List By Id:** another list reccord by id is a get request where we will send the id as a parameter in the url and get the record with that particular id
+    e.g:-get("/model_name/:id", auth, createActivityLog, controller.getDataById)
+    - **Bulk Upload:** another post request is for bulk upload where we will upload an excel file using the upload middleware and read the data from the excel file using the readExcel.js file and insert the data into the database using the necessary functions from the models folder
+    e.g:-post("/model_name/bulkUpload", auth, upload.single("file"), validate.bulkUploadData, createActivityLog, controller.bulkUploadData)
